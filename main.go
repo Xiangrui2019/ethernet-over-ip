@@ -3,32 +3,22 @@ package main
 import (
 	"ethernet-over-ip/ethernet"
 	"ethernet-over-ip/transport"
-	"flag"
 	"log"
-)
-
-var (
-	tap_interface_name string
-	local_ip           string
-	local_port         int64
-	remote_ip          string
-	remote_port        int64
+	"os"
+	"strconv"
 )
 
 func main() {
-	flag.StringVar(&tap_interface_name, "tap_interface_name", "tap0", "")
-	flag.StringVar(&local_ip, "local_ip", "0.0.0.0", "")
-	flag.StringVar(&remote_ip, "remote_ip", "0.0.0.0", "")
-	flag.Int64Var(&local_port, "local_port", 8888, "")
-	flag.Int64Var(&remote_port, "remote_port", 8888, "")
-	flag.Parse()
 	log.Println("Welcome to use Ethernet Over Internet Protocol Agent.")
 
-	eth := ethernet.NewEthernet(tap_interface_name)
+	local_port, _ := strconv.Atoi(os.Getenv("LOCAL_PORT"))
+	remote_port, _ := strconv.Atoi(os.Getenv("PEER_PORT"))
+
+	eth := ethernet.NewEthernet(os.Getenv("TAP_INTERFACE_NAME"))
 	defer eth.TapInterface.Close()
 	log.Println("Ethernet tap driver is init ok.")
 
-	trans := transport.NewUDPTransport(local_ip, int(local_port), remote_ip, int(remote_port), eth.TapInterface)
+	trans := transport.NewUDPTransport(os.Getenv("LOCAL_IP"), int(local_port), os.Getenv("PEER_IP"), int(remote_port), eth.TapInterface)
 	defer trans.LocalUDPConnection.Close()
 	log.Println("UDP Transport driver is init ok.")
 
