@@ -4,7 +4,7 @@ import (
 	// "ethernet-over-ip/encryption"
 	"log"
 	"net"
-	"os"
+	//	"os"
 	"time"
 
 	"github.com/songgao/water"
@@ -48,9 +48,6 @@ func (transport *UDPTransport) L2ToL4() {
 			continue
 		}
 
-		log.Println("Transfer ethernet frames number: ", n)
-		log.Println("Transfer UDP Remote Addr: ", transport.RemoteAddr.String())
-
 		if _, err := transport.LocalUDPConnection.WriteToUDP(buf[:n], transport.RemoteAddr); err != nil {
 			log.Println("Write ethernet frames to udp error: ", err)
 			time.Sleep(time.Millisecond * 10)
@@ -70,9 +67,6 @@ func (transport *UDPTransport) L4ToL2() {
 			time.Sleep(time.Millisecond * 10)
 			continue
 		}
-
-		log.Println("Transfer ethernet frames nuumber: ", n)
-		log.Println("Transfer UDP Remote Addr: ", readdr)
 
 		if _, err := transport.TapInterface.Write(buf[:n]); err != nil {
 			log.Println("Write ethernet frames to tap driver error: ", readdr.String())

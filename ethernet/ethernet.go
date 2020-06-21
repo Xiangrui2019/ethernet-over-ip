@@ -14,7 +14,9 @@ func NewEthernet(tap_interface_name string) *Ethernet {
 	tap_interface, err := water.New(water.Config{
 		DeviceType: water.TAP,
 		PlatformSpecificParams: water.PlatformSpecificParams{
-			Name: tap_interface_name,
+			Name:       tap_interface_name,
+			Persist:    true,
+			MultiQueue: true,
 		},
 	})
 
