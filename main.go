@@ -4,6 +4,7 @@ import (
 	"ethernet-over-ip/ethernet"
 	"ethernet-over-ip/transport"
 	"flag"
+	"log"
 )
 
 var (
@@ -21,12 +22,18 @@ func main() {
 	flag.Int64Var(&local_port, "local_port", 8888, "")
 	flag.Int64Var(&remote_port, "remote_port", 8888, "")
 	flag.Parse()
+	log.Println("Welcome to use Ethernet Over Internet Protocol Agent.")
 
 	eth := ethernet.NewEthernet(tap_interface_name)
 	defer eth.TapInterface.Close()
+	log.Println("Ethernet tap driver is init ok.")
+
 	trans := transport.NewUDPTransport(local_ip, int(local_port), remote_ip, int(remote_port), eth.TapInterface)
 	defer trans.LocalUDPConnection.Close()
+	log.Println("UDP Transport driver is init ok.")
 
 	go trans.L2ToL4()
-	trans.L4ToL2()
+	go trans.L4ToL2()
+	log.Println("This Ethernet Over Internet Protocol Agent is running, Please don't close it.")
+	select {}
 }
