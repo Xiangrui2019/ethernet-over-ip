@@ -34,7 +34,7 @@ func NewUDPTransport(ip string, port int, remote_ip string, remote_port int, l2_
 	}
 }
 
-func (transport *UDPTransport) L4ToL2() {
+func (transport *UDPTransport) L2ToL4() {
 	buf := make([]byte, 65535)
 
 	for {
@@ -57,7 +57,7 @@ func (transport *UDPTransport) L4ToL2() {
 	}
 }
 
-func (transport *UDPTransport) L2ToL4() {
+func (transport *UDPTransport) L4ToL2() {
 	buf := make([]byte, 65535)
 
 	for {
