@@ -41,14 +41,17 @@ func (transport *UDPTransport) L4ToL2() {
 		n, err := transport.TapInterface.Read(buf)
 
 		if err != nil {
-			log.Println(err)
-			time.Sleep(time.Millisecond * 2)
+			log.Println("Read ethernet frames on tap driver error: ", err)
+			time.Sleep(time.Millisecond * 10)
 			continue
 		}
 
+		log.Println("Transfer ethernet frames number: ", n)
+		log.Println("Transfer UDP Remote Addr: ", transport.RemoteAddr.String())
+
 		if _, err := transport.LocalUDPConnection.WriteToUDP(buf[:n], transport.RemoteAddr); err != nil {
-			log.Println(err)
-			time.Sleep(time.Millisecond * 2)
+			log.Println("Write ethernet frames to udp error: ", err)
+			time.Sleep(time.Millisecond * 10)
 			continue
 		}
 	}
@@ -58,16 +61,20 @@ func (transport *UDPTransport) L2ToL4() {
 	buf := make([]byte, 65535)
 
 	for {
-		n, _, err := transport.LocalUDPConnection.ReadFromUDP(buf)
+		n, readdr, err := transport.LocalUDPConnection.ReadFromUDP(buf)
 
 		if err != nil {
-			log.Println(err)
-			time.Sleep(time.Millisecond * 2)
+			log.Println("Read ethernet frames on udp error: ", err)
+			time.Sleep(time.Millisecond * 10)
 			continue
 		}
 
+		log.Println("Transfer ethernet frames nuumber: ", n)
+		log.Println("Transfer UDP Remote Addr: ", readdr)
+
 		if _, err := transport.TapInterface.Write(buf[:n]); err != nil {
-			time.Sleep(time.Millisecond)
+			log.Println("Write ethernet frames to tap driver error: ", readdr.String())
+			time.Sleep(time.Millisecond * 10)
 			continue
 		}
 	}
