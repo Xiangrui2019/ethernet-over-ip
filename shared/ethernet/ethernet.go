@@ -1,14 +1,12 @@
 package ethernet
 
 import (
-	"log"
-	"runtime"
-
 	"github.com/songgao/water"
+	"log"
 )
 
 type Ethernet struct {
-	EthernetInterface *water.Interface
+	EthernetIface *water.Interface
 }
 
 func NewEthernet(tap_interface_name string) *Ethernet {
@@ -29,6 +27,6 @@ func NewEthernet(tap_interface_name string) *Ethernet {
 	}
 
 	return &Ethernet{
-		EthernetInterface: eth_interface,
+		EthernetIface: eth_interface,
 	}
 }
