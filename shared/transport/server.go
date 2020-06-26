@@ -58,17 +58,24 @@ func (server *Server) Handler(conn *net.TCPConn) {
 func (server *Server) L4ToL2(conn *net.TCPConn) {
 	reader := bufio.NewReader(conn)
 	buf := make([]byte, 65535)
+	error_rate := 0
 
 	for {
+		if error_rate > 100 {
+			break
+		}
+
 		n, err := reader.Read(buf)
 
 		if err != nil {
 			log.Println("Read Ethernet Frame from TCP error: ", err)
+			error_rate = error_rate + 1
 			continue
 		}
 
 		if _, err := server.Ethernet.EthernetIface.Write(buf[:n]); err != nil {
 			log.Println("Write Ethernet Frame to Ethernet Tap Driver error: ", err)
+			error_rate = error_rate + 1
 			continue
 		}
 	}
@@ -76,17 +83,24 @@ func (server *Server) L4ToL2(conn *net.TCPConn) {
 
 func (server *Server) L2ToL4(conn *net.TCPConn) {
 	buf := make([]byte, 65535)
+	error_rate := 0
 
 	for {
+		if error_rate > 100 {
+			break
+		}
+
 		n, err := server.Ethernet.EthernetIface.Read(buf)
 
 		if err != nil {
 			log.Println("Read Ethernet Frame from tap driver error: ", err)
+			error_rate = error_rate + 1
 			continue
 		}
 
 		if _, err := conn.Write(buf[:n]); err != nil {
 			log.Println("Write Ethernet Frame to tcp streams error: ", err)
+			error_rate = error_rate + 1
 			continue
 		}
 	}
