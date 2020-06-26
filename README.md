@@ -1,3 +1,5 @@
+# END OF this README
+# This readme is old 
 # Ethernet Over IP (EoIP)
 
 ### 为什么要写这个项目
