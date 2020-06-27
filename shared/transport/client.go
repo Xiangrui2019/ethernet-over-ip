@@ -2,7 +2,6 @@ package transport
 
 import (
 	"bufio"
-	"ethernet-over-ip/shared/encryption"
 	"ethernet-over-ip/shared/ethernet"
 	"log"
 	"net"
@@ -76,9 +75,7 @@ func (client *Client) L4ToL2(conn *net.TCPConn) {
 			continue
 		}
 
-		decrypt_buf := encryption.AesDecryptCBC(buf[:n], []byte(client.PreSharedKey))
-
-		if _, err := client.Ethernet.EthernetIface.Write(decrypt_buf); err != nil {
+		if _, err := client.Ethernet.EthernetIface.Write(buf[:n]); err != nil {
 			log.Println("Write Ethernet Frames to Tap driver error: ", err)
 			error_rate = error_rate + 1
 			continue
@@ -103,9 +100,7 @@ func (client *Client) L2ToL4(conn *net.TCPConn) {
 			continue
 		}
 
-		encrypt_buf := encryption.AesEncryptCBC(buf[:n], []byte(client.PreSharedKey))
-
-		if _, err := client.TcpDialer.Write(encrypt_buf); err != nil {
+		if _, err := client.TcpDialer.Write(buf[:n]); err != nil {
 			log.Println("Write Ethernet Frames to tcp error: ", err)
 			error_rate = error_rate + 1
 			continue
