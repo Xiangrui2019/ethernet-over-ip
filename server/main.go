@@ -9,7 +9,7 @@ import (
 
 func main() {
 	eth := ethernet.NewEthernet(os.Getenv("ETHERNET_IFACE_NAME"))
-	server := transport.NewServer(os.Getenv("SERVER_ADDR"), eth)
+	server := transport.NewServer(os.Getenv("SERVER_ADDR"), eth, os.Getenv("PRE_SHARED_KEY"))
 
 	server.Serve()
 }

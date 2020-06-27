@@ -2,6 +2,7 @@ package transport
 
 import (
 	"bufio"
+	"ethernet-over-ip/shared/encryption"
 	"ethernet-over-ip/shared/ethernet"
 	"log"
 	"net"
@@ -9,21 +10,23 @@ import (
 )
 
 type Client struct {
-	TcpAddr   *net.TCPAddr
-	TcpDialer *net.TCPConn
-	Ethernet  *ethernet.Ethernet
+	TcpAddr      *net.TCPAddr
+	TcpDialer    *net.TCPConn
+	Ethernet     *ethernet.Ethernet
+	PreSharedKey string
 }
 
-func NewClient(server_addr string, eth *ethernet.Ethernet) *Client {
+func NewClient(server_addr string, eth *ethernet.Ethernet, pre_shared_key string) *Client {
 	tcpAddr, err := net.ResolveTCPAddr("tcp", server_addr)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	client := &Client{
-		TcpAddr:   tcpAddr,
-		TcpDialer: tcpDialer,
-		Ethernet:  eth,
+		TcpAddr:      tcpAddr,
+		TcpDialer:    nil,
+		Ethernet:     eth,
+		PreSharedKey: pre_shared_key,
 	}
 
 	return client
@@ -72,7 +75,9 @@ func (client *Client) L4ToL2(conn *net.TCPConn) {
 			continue
 		}
 
-		if _, err := client.Ethernet.EthernetIface.Write(buf[:n]); err != nil {
+		decrypt_buf := encryption.AesDecryptCBC(buf[:n], []byte(client.PreSharedKey))
+
+		if _, err := client.Ethernet.EthernetIface.Write(decrypt_buf); err != nil {
 			log.Println("Write Ethernet Frames to Tap driver error: ", err)
 			error_rate = error_rate + 1
 			continue
@@ -97,7 +102,9 @@ func (client *Client) L2ToL4(conn *net.TCPConn) {
 			continue
 		}
 
-		if _, err := client.TcpDialer.Write(buf[:n]); err != nil {
+		encrypt_buf := encryption.AesEncryptCBC(buf[:n], []byte(client.PreSharedKey))
+
+		if _, err := client.TcpDialer.Write(encrypt_buf); err != nil {
 			log.Println("Write Ethernet Frames to tcp error: ", err)
 			error_rate = error_rate + 1
 			continue
