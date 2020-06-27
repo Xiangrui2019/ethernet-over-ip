@@ -46,6 +46,7 @@ func (client *Client) Serve() {
 		client.Handler(client.TcpDialer)
 		time.Sleep(time.Second * 20)
 	}
+
 	defer client.TcpDialer.Close()
 }
 

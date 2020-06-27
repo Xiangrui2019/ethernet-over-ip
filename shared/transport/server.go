@@ -46,6 +46,7 @@ func (server *Server) Serve() {
 		}
 
 		go server.Handler(tcpConnection)
+		defer tcpConnection.Close()
 	}
 
 	defer server.TcpListener.Close()
@@ -54,8 +55,6 @@ func (server *Server) Serve() {
 func (server *Server) Handler(conn *net.TCPConn) {
 	go server.L2ToL4(conn)
 	server.L4ToL2(conn)
-
-	conn.Close()
 }
 
 func (server *Server) L4ToL2(conn *net.TCPConn) {
