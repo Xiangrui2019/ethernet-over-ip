@@ -64,7 +64,7 @@ func (server *Server) L4ToL2(conn *net.TCPConn) {
 	error_rate := 0
 
 	for {
-		if error_rate > 100 {
+		if error_rate > 10 {
 			break
 		}
 
@@ -91,7 +91,7 @@ func (server *Server) L2ToL4(conn *net.TCPConn) {
 	error_rate := 0
 
 	for {
-		if error_rate > 100 {
+		if error_rate > 10 {
 			break
 		}
 
